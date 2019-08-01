@@ -1,109 +1,39 @@
 #!/usr/bin/env node
 
 var program = require('commander');
-var fs = require('fs');
 var exporter = require('..');
 var EventEmitter = require('events').EventEmitter;
 var PublicKey = require('bitcore-lib').PublicKey;
-var bitcore = require('bitcore-lib');
 
 program
-  .option('-t, --testnet', 'testnet/regtest network')
-  .option('-f, --file <wallet.dat file>', 'import from wallet.dat file')
-  .usage('[options] e.g. wallet-import-berkeley -f ~/.bitcoin/wallet.dat wallet.json\nIf no output file name given, then output is sent to stdout in JSONL format.')
+  .version('0.1.0', '-v, --version')
+  .description('Emit a JSONL stream of wallet keys.')
+  .option('-t, --testnet', 'interpret as a testnet wallet')
+  .option('-f, --file <wallet-file>', 'a BerkeleyDB wallet.dat file')
   .parse(process.argv);
 
-var args = program.args;
-
-var outputFile = args[0];
-var template = {
-  walletId: null,
-  HDPublicKey: null,
-  HDPrivateKey: null,
-  masterKey: null,
-  keys: []
-};
-
-var network = setNetwork();
-
-if (!args[0]) {
-  outputFile = process.stdout;
-} else if (fs.existsSync(args[0])) {
-  console.error('Output file: "' + args[0] + '" already exists, not over-writing, aborting.');
-  process.exit(-1);
+var network = program.testnet ? 'testnet' : 'livenet';
+if (!program.file) {
+  program.help();
 }
 
 function processOutput(json) {
-  var value = JSON.parse(json);
-  if (value.pubKey) {
-    var pk = new PublicKey(value.pubKey);
-    value.address = pk.toAddress(network).toString();
-    template.keys.push(value);
-  } else {
-    template.masterKey = value;
+  var obj = JSON.parse(json);
+  if (obj.pubKey) {
+    var pk = new PublicKey(obj.pubKey);
+    obj.address = pk.toAddress(network).toString();
   }
-  if (outputFile === process.stdout) {
-    return outputFile.write(JSON.stringify(value) + '\n');
-  }
+  console.log(JSON.stringify(obj));
 }
 
-function generateKeyPair() {
-  var privkey = new bitcore.HDPrivateKey();
-  template.HDPublicKey = privkey.xpubkey;
-  template.HDPrivateKey = privkey.toString();
-  template.walletId = bitcore.crypto.Hash.sha256sha256(new Buffer(privkey.xpubkey)).toString('hex');
-}
-
-function closeOut(callback) {
-  generateKeyPair();
-  if (outputFile === process.stdout) {
-    outputFile.write(network + '\n');
-    outputFile.write('\04'); //we will always send a proper EOF char when the stream is complete
-    return setImmediate(callback);
-  }
-  callback(template);
-}
-
-function exportWallet(callback) {
+function main() {
   var emitter = new EventEmitter();
   exporter.stream({
     filePath: program.file,
     emitter: emitter
   });
-
   emitter.on('data', processOutput);
-
-  emitter.on('close', function() {
-    closeOut(callback);
-  });
-
   exporter.start();
 }
 
-function setNetwork() {
-  return program.testnet ? 'testnet' : 'livenet';
-}
-
-exportWallet(function(result) {
-  if (!result) {
-    return;
-  }
-  fs.open(outputFile, 'wx', function(err, fd) {
-    if (err) {
-      if (err.code === "EEXIST") {
-        console.error(args[0] + ' exists, not over-writing.');
-        return;
-      } else {
-        throw err;
-      }
-    }
-
-    fs.write(fd, JSON.stringify(result, null, 2), function(err) {
-      if(err) {
-        throw err;
-      }
-      console.log('import complete');
-    });
-
-  });
-});
+main();

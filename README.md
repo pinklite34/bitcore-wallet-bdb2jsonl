@@ -1,5 +1,5 @@
 ### Purpose
-To export/extract keys from a Bitcoin wallet.dat file. More specifically, streams out keys from a Bitcoin Core's (formerly known as Sastoshi Client) wallet file (wallet.dat).
+To export/extract keys from a Bitcoin wallet.dat file. This module can be imported and used programmatically from another nodejs module, or you can use a convenient command line tool.
 
 ### Dependencies/Prerequisties
 * C++ compiler and build tools
@@ -12,8 +12,14 @@ $ npm install
 ```
 
 ### Usage
+The command line tool can be used as follows:
+```bash
+wallet-bdb2jsonl -f wallet.dat
+```
+
+Or you may load and use it as a nodejs module:
 ```javascript
-var exporter = require('bitcoin-wallet-node');
+var exporter = require('bitcore-bdb2jsonl');
 
 exporter({ filePath: './wallet.dat' }); //to stdout -or- send in your own emitter, just needs to be able to emit a data, close and error signal
 
