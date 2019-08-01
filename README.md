@@ -14,7 +14,7 @@ $ npm install
 ### Usage
 The command line tool can be used as follows:
 ```bash
-wallet-bdb2jsonl -f wallet.dat
+$ wallet-bdb2jsonl -f wallet.dat
 ```
 
 Or you may load and use it as a nodejs module:
