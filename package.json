@@ -1,10 +1,19 @@
 {
-  "name": "bitcoin-wallet-node",
+  "name": "bitcore-wallet-bdb2jsonl",
   "main": "./index.js",
   "description": "Bitcoin wallet.dat key exporter",
   "author": "Chris Kleeschulte <chrisk@bitpay.com>",
+  "contributors": [
+    {
+      "name": "Stephen Pair",
+      "email": "stephen@bitpay.com"
+    }
+  ],
   "keywords": [
     "bitcoin",
+    "bitcore",
+    "bitpay",
+    "copay",
     "wallet",
     "wallet.dat",
     "key",
@@ -12,26 +21,31 @@
     "binding"
   ],
   "bugs": {
-    "url": "https://github.com/kleetus/bitcoin-wallet-node/issues"
+    "url": "https://github.com/bitpay/bitcore-wallet-bdb2jsonl/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kleetus/bitcoin-wallet-node.git"
+    "url": "git+https://github.com/bitpay/bitcore-wallet-bdb2jsonl.git"
   },
-  "homepage": "https://github.com/kleetus/bitcoin-wallet-node#readme",
-  "version": "0.0.3",
+  "homepage": "https://github.com/bitpay/bitcore-wallet-bdb2jsonl#readme",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "configure": "node-gyp configure",
     "build": "node-gyp rebuild",
+    "postinstall": "node-gyp rebuild",
     "test": "mocha -R spec test"
   },
   "dependencies": {
-    "nan": "*",
-    "streaming-worker-sdk": "kleetus/streaming-worker"
+    "nan": "^2.14.0",
+    "commander": "*",
+    "bitcore-lib": "^8.5.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
+  },
+  "bin": {
+    "wallet-bdb2jsonl": "./bin/wallet-bdb2jsonl"
   }
 }

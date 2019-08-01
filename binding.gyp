@@ -14,8 +14,7 @@
       'include_dirs': [
         './dependencies/db-4.8.30.NC/build_unix',
         './dependencies/json/src',
-        "<!(node -e \"require('nan')\")",
-        "<!(node -e \"require('streaming-worker-sdk')\")"
+        "<!(node -e \"require('nan')\")"
       ],
       'conditions': [
         ['<!(./build_scripts/bdb.sh)=="lib"', {
